@@ -6,3 +6,5 @@ patches:
   "1.0.5":
     - patch_file: "patches/fix-nmake.patch"
       base_path: "source_subfolder"
+    - patch_file: "patches/msvc-round-lround.patch"
+      base_path: "source_subfolder"
