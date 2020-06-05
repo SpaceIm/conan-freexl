@@ -7,7 +7,7 @@ class FreexlConan(ConanFile):
     name = "freexl"
     description = "FreeXL is an open source library to extract valid data " \
                   "from within an Excel (.xls) spreadsheet."
-    license = ["MPL-1.0", "GPL-2.0", "LGPL-2.1"]
+    license = ["MPL-1.0", "GPL-2.0-only", "LGPL-2.1-only"]
     topics = ("conan", "freexl", "excel", "xls")
     homepage = "https://www.gaia-gis.it/fossil/freexl/index"
     url = "https://github.com/conan-io/conan-center-index"
@@ -42,6 +42,15 @@ class FreexlConan(ConanFile):
         tools.get(**self.conan_data["sources"][self.version])
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
+    def build(self):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.patch(**patch)
+        if self.settings.compiler == "Visual Studio":
+            self._build_msvc()
+        else:
+            autotools = self._configure_autotools()
+            autotools.make()
+
     def _build_msvc(self):
         args = "freexl_i.lib FREEXL_EXPORT=-DDLL_EXPORT" if self.options.shared else "freexl.lib"
         with tools.chdir(self._source_subfolder):
@@ -53,22 +62,10 @@ class FreexlConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        args = []
-        if self.options.shared:
-            args.extend(["--disable-static", "--enable-shared"])
-        else:
-            args.extend(["--disable-shared", "--enable-static"])
+        args = ["--disable-static" if self.options.shared else "--enable-static",
+                "--enable-shared" if self.options.shared else "--disable-shared"]
         self._autotools.configure(args=args, configure_dir=self._source_subfolder)
         return self._autotools
-
-    def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        if self.settings.compiler == "Visual Studio":
-            self._build_msvc()
-        else:
-            autotools = self._configure_autotools()
-            autotools.make()
 
     def package(self):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
