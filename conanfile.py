@@ -43,14 +43,11 @@ class FreexlConan(ConanFile):
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _build_msvc(self):
-        args = []
-        if self.options.shared:
-            args.append("FREEXL_EXPORT=-DDLL_EXPORT")
+        args = "freexl_i.lib FREEXL_EXPORT=-DDLL_EXPORT" if self.options.shared else "freexl.lib"
         with tools.chdir(self._source_subfolder):
             with tools.vcvars(self.settings):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
-                    self.run("nmake -f makefile.vc {0} {1}".format("freexl_i.lib" if self.options.shared else "freexl.lib",
-                                                                   " ".join(args)))
+                    self.run("nmake -f makefile.vc {}".format(args))
 
     def _configure_autotools(self):
         if self._autotools:
