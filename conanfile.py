@@ -45,7 +45,7 @@ class FreexlConan(ConanFile):
     def _build_msvc(self):
         args = []
         if self.options.shared:
-            args.append("CFLAGS=-DDLL_EXPORT")
+            args.append("OPTFLAGS=-DDLL_EXPORT")
         with tools.chdir(self._source_subfolder):
             with tools.vcvars(self.settings):
                 with tools.environment_append(VisualStudioBuildEnvironment(self).vars):
