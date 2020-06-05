@@ -13,5 +13,6 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self.settings):
+            xls_path = os.path.join(self.source_folder, "simple2003_21.xls")
             bin_path = os.path.join("bin", "test_package")
-            self.run(bin_path, run_environment=True)
+            self.run("{0} {1}".format(bin_path, xls_path), run_environment=True)
