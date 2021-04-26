@@ -37,7 +37,7 @@ class FreexlConan(ConanFile):
 
     def build_requirements(self):
         if tools.os_info.is_windows and self.settings.compiler != "Visual Studio" and \
-           "CONAN_BASH_PATH" not in os.environ and tools.os_info.detect_windows_subsystem() != "msys2":
+           not tools.get_env("CONAN_BASH_PATH"):
             self.build_requires("msys2/20200517")
 
     def source(self):
